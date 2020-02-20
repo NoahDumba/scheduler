@@ -12,8 +12,31 @@ export default function getAppointmentsForDay(state, day) {
   return finalArr;
 };
 
-export function getInterview(state, interview) {
-  if(!interview) { return null; };
+export function getInterviewersForDay(state, day) {
+  let manta = [];
+  if(state.days.length === 0) {
+    return manta;
+  };
+
+  let interviewersArr = [];
+  for (let element of state.days) {
+    if (element.name === day) {
+      interviewersArr = element.interviewers
+    };
+  };
+
+  for (let index of interviewersArr) {
+    manta.push(state.interviewers[index]);
+  }
+
+  return manta;
+};
+
+export function getInterview(state, interviewor) {
+  let interview = {...interviewor};
+  if(Object.keys(interview).length === 0) {
+     return null; 
+    };
 
   for (let stateInterviewer in state.interviewers) {
     if (interview.interviewer === Number(stateInterviewer)) {
