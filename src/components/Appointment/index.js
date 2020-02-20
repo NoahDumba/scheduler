@@ -34,7 +34,9 @@ export default function Appointment(props) {
   };
 
   function save(name, interviewer) {
-    // let ID = props.id;
+    
+    if (interviewer) {
+
     const interview = {
       student: name,
       interviewer
@@ -47,6 +49,10 @@ export default function Appointment(props) {
     ).catch(() => {
       transition(ERROR_SAVE, true)
     });
+
+    } else {
+      console.log("CANT BOOK WITHOUT AN INTERVIEWER");
+    }
   };
 
   function deleteFunc(id) {
