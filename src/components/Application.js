@@ -4,10 +4,7 @@ import "components/Application.scss";
 import DayList from "components/DayList";
 import getAppointmentsForDay, { getInterview, getInterviewersForDay } from "../helpers/selectors";
 
-// import getInterview from "../helpers/selectors";
-
 const axios = require('axios').default;
-// const getAppointmentsForDay = require("../helpers/selectors");
 
 export default function Application(props) {
 
@@ -51,6 +48,15 @@ export default function Application(props) {
     );
   };
 
+  function cancelInterview(id) {
+    const appointment = {
+      ...state.appointments[id],
+      interview: null
+    };
+
+    return axios.delete(`http://localhost:8001/api/appointments/${id}`);
+  }
+
   return (
     <main className="layout">
       <section className="sidebar">
@@ -79,7 +85,7 @@ export default function Application(props) {
           const interview = getInterview(state, appointment.interview);
           const interviewers = getInterviewersForDay(state, state.day)
           return (
-            <Appointment key={appointment.id} interview={interview} interviewers={interviewers} bookInterview={bookInterview} id={appointment.id} time={appointment.time} />
+            <Appointment key={appointment.id} interview={interview} interviewers={interviewers} bookInterview={bookInterview} cancelInterview={cancelInterview} id={appointment.id} time={appointment.time} />
           );
         })
       }

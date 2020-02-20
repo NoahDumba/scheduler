@@ -2,6 +2,10 @@ import React from "react";
 
 export default function Show(props) {
 
+function deleteFunc() {
+  props.onDelete(props.id);
+};
+
 return (
   <main className="appointment__card appointment__card--show">
   <section className="appointment__card-left">
@@ -23,7 +27,7 @@ return (
         className="appointment__actions-button"
         src="images/trash.png"
         alt="Delete"
-        onClick={props.onDelete}
+        onClick={deleteFunc}
       />
     </section>
   </section>
