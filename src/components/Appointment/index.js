@@ -78,11 +78,14 @@ export default function Appointment(props) {
 
   useEffect(() => {
     if (props.interview && mode === EMPTY) {
+      console.log("SHOW TRANSITION");
      transition(SHOW);
     }
     if (props.interview === null && mode === SHOW) {
+      console.log("SHOW TRANSITION");
      transition(EMPTY);
     }
+    console.log("USEEFFECT");
    }, [props.interview, transition, mode]);
 
   return (

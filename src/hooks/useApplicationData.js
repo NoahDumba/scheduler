@@ -1,4 +1,5 @@
 import { useReducer, useEffect } from "react";
+
 const socket = new WebSocket(process.env.REACT_APP_WEBSOCKET_URL);
 
 const axios = require('axios').default;
@@ -15,15 +16,12 @@ export default function useApplicationData() {
     interviewers: {}
   });
 
-  function getDayID(state) {
-    let dayID;
+  function getDayID(state, id) {
     for (let day of state.days) { //looping through the days
-      if (day.name === state.day) { //checking if day is equal to state.day
-        dayID = day.id;
+      if (day.appointments.includes(id)) {
+        return day.id - 1;
       }
-    }
-
-    return dayID - 1;
+    }    
   }
   
   function reducer(state, action) {
@@ -36,43 +34,49 @@ export default function useApplicationData() {
 
           const interview = action.interview
           const id = action.id
+          const dayID = getDayID(state, id);
 
-          const appointment = {
-            ...state.appointments[id],
-            interview: { ...interview }
-          };
-      
+          console.log("INTERVIEw:", interview)
+
+          let appointment = {};
+
+          if (!interview) {
+            appointment = {
+              ...state.appointments[id],
+              interview: null
+            };
+          } else {
+            appointment = {
+              ...state.appointments[id],
+              interview: { ...interview }
+            };
+          }
+
           const appointments = {
             ...state.appointments,
             [id]: appointment
           };
 
           const days = [ ...state.days ];
-          const dayID = getDayID(state);
+          const appointmentsForDay = state.days[dayID].appointments;
+          let spotCount = 0;
+
+          for (let appointment of appointmentsForDay) {
+            let currentAppointment = appointments[appointment]
+            console.log("CURRENT APPOINTMENT", currentAppointment);
+            if (!currentAppointment.interview || Object.keys(currentAppointment.interview).length === 0) {
+              spotCount++;
+            }
+          }
+          console.log("SPOTS", spotCount);          
+    
+          const day = {
+            ...state.days[dayID],
+            spots: spotCount
+          }
+            days[dayID] = day;
           
-          if (!state.appointments[id].interview && interview) {
-
-            let currentSpots = state.days[dayID].spots;
-            currentSpots--;
-      
-            const day = {
-            ...state.days[dayID],
-            spots: currentSpots
-          }
-            days[dayID] = day;
-
-          } else if (state.appointments[id].interview && !interview) {
-
-            let currentSpots = state.days[dayID].spots;
-            currentSpots++;
-      
-            const day = {
-            ...state.days[dayID],
-            spots: currentSpots
-          }
-            days[dayID] = day;
-          }
-
+          console.log("REDUCER");
         return {...state, appointments: appointments, days: days}
       default:
         throw new Error(
@@ -82,13 +86,14 @@ export default function useApplicationData() {
   }
 
   useEffect(() => {
-    socket.send("ping");
+    // socket.send("ping");
     socket.onmessage = event => {
       console.log(`Message Received: ${event.data}`);
       let parsedMessage = JSON.parse(event.data);
 
       console.log(parsedMessage);
       if (parsedMessage.type === SET_INTERVIEW) {
+        console.log("HELLO THIS IS SERVER MESSAGE");
         dispatch({ type: SET_INTERVIEW, interview: parsedMessage.interview, id: parsedMessage.id});
       }
     }
