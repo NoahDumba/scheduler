@@ -15,7 +15,7 @@ export default function Form(props) {
     reset();
     props.onCancel();
   };
-  
+
   function save() {
     props.onSave(name, interviewer);
   };
