@@ -18,6 +18,7 @@ const CONFIRM = "CONFIRM";
 const EDIT = "EDIT";
 const ERROR_SAVE = "ERROR_SAVE";
 const ERROR_DELETE = "ERROR_DELETE";
+const ERROR_CREATE = "ERROR_CREATE";
 
 
 export default function Appointment(props) {
@@ -36,34 +37,30 @@ export default function Appointment(props) {
   function save(name, interviewer) {
     
     if (interviewer) {
+      const interview = {
+        student: name,
+        interviewer
+      };
 
-    const interview = {
-      student: name,
-      interviewer
-    };
-
-    transition(SAVING);
-    props.bookInterview(props.id, interview)
-    .then(() => 
-      transition(SHOW)
-    ).catch(() => {
-      transition(ERROR_SAVE, true)
-    });
+      transition(SAVING);
+      props.bookInterview(props.id, interview)
+      .then(() => 
+        transition(SHOW)
+      ).catch(() => {
+        transition(ERROR_SAVE, true)
+      });
 
     } else {
-      console.log("CANT BOOK WITHOUT AN INTERVIEWER");
+      transition(ERROR_CREATE, true);
     }
   };
 
-  function deleteFunc(id) {
-    transition(DELETING)
+  function deleteFunc() {
+    transition(DELETING, true);
 
     props.cancelInterview(props.id)
-    .then(() => {
-      transition(EMPTY)
-    }).catch(() => {
-      transition(ERROR_DELETE, true)
-    });
+    .then(() => transition(EMPTY))
+    .catch(() => transition(ERROR_DELETE, true));
   }
 
   function confirm() {
@@ -74,22 +71,17 @@ export default function Appointment(props) {
     transition(EDIT)
   }
 
-  // let interviewers = getInterviewersForDay(props.state, props.day)
-
   useEffect(() => {
     if (props.interview && mode === EMPTY) {
-      console.log("SHOW TRANSITION");
      transition(SHOW);
     }
     if (props.interview === null && mode === SHOW) {
-      console.log("SHOW TRANSITION");
      transition(EMPTY);
     }
-    console.log("USEEFFECT");
    }, [props.interview, transition, mode]);
 
   return (
-  <article className="appointment">
+  <article className="appointment" data-testid="appointment">
     <Header
       time={props.time}
     />
@@ -113,6 +105,7 @@ export default function Appointment(props) {
     )}
     {mode === ERROR_DELETE && (<Error message="Error while deleting" onClose={onCancel}/>)}
     {mode === ERROR_SAVE && (<Error message="Error while saving" onClose={onCancel}/>)}
+    {mode === ERROR_CREATE && (<Error message="Error: You must select an interviewer" onClose={onCancel}/>)}
   </article>
   )
 };
