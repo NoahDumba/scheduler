@@ -39,14 +39,14 @@ export default function useApplicationData() {
       interview: { ...interview }
     };
 
-    return axios.put(`http://localhost:8001/api/appointments/${id}`, appointment)
+    return axios.put(`/api/appointments/${id}`, appointment)
     .then(() =>
       dispatch({ type: SET_INTERVIEW, interview, id})
     );
   };
 
   function cancelInterview(id, interview = null) {
-    return axios.delete(`http://localhost:8001/api/appointments/${id}`)
+    return axios.delete(`/api/appointments/${id}`)
     .then(() =>
       dispatch({ type: SET_INTERVIEW, interview, id})
     );
